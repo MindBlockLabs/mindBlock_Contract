@@ -1,0 +1,11 @@
+name = "MindBlock"
+version = "0.1.0"
+description = "A sample Cairo project demonstrating smart contracts and testing."
+authors = ["Your Name <your.email@example.com>"]
+license = "MIT"
+
+[dependencies]
+# Add your project dependencies here
+
+[build]
+# Specify build settings if necessary
