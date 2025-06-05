@@ -1,3 +1,9 @@
+// Declare modules
+pub mod reward_token;
+
+// Re-export reward token interfaces for easier access
+pub use reward_token::{IERC20, IRewardToken};
+
 /// Interface representing `HelloContract`.
 /// This interface allows modification and retrieval of the contract balance.
 #[starknet::interface]
