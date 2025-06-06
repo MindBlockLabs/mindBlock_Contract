@@ -6,9 +6,14 @@ mod badge_nft {
 
     #[storage]
     struct Storage {
-        // This stores all ERC721-related data (owners, balances, etc.)
         erc721: ERC721::Storage,
-        // This stores the contract owner's address
         owner: ContractAddress,
+    }
+
+    #[constructor]
+    fn constructor(name: felt252, symbol: felt252) {
+        let caller = get_caller_address();
+        ERC721::constructor(name, symbol);
+        owner::write(caller);
     }
 }
