@@ -1,4 +1,4 @@
-name: Compile, Test & Deploy Badge NFT
+name: Compile & Deploy Badge NFT with Starkli
 
 on:
   push:
@@ -7,11 +7,11 @@ on:
       - feature/badge-nft
 
 jobs:
-  build-test-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Install Scarb (Cairo package manager)
@@ -19,11 +19,11 @@ jobs:
           curl -L https://install.scarb.sh | bash
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
-      - name: Set up Python & Starkli CLI
+      - name: Install Starkli CLI
         run: |
-          sudo apt update
-          sudo apt install -y python3-pip
-          pip3 install starknet-devnet
+          curl -L https://github.com/xJonathanLEI/starkli/releases/latest/download/starkli-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          chmod +x starkli
+          sudo mv starkli /usr/local/bin/
 
       - name: Build contract
         run: scarb build
@@ -32,5 +32,10 @@ jobs:
         env:
           STARKNET_PRIVATE_KEY: ${{ secrets.STARKNET_PRIVATE_KEY }}
         run: |
-          echo "🚀 Deploy step would be run here with Starkli or a deployment script."
-          echo "Private key and ABI available. Consider using starkli or Python script."
+          # Prepare signer
+          starkli signer import env --private-key-env-var STARKNET_PRIVATE_KEY
+
+          # Deploy the contract using starkli (update path and constructor args if needed)
+          CONTRACT_PATH="target/dev/mindblock_contract_BadgeNft.contract_class.json"
+          
+          starkli deploy $CONTRACT_PATH --network testnet --signer env
