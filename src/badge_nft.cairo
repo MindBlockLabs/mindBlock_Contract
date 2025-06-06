@@ -1,7 +1,5 @@
-// src/badge_nft.cairo
-
 #[contract]
 mod badge_nft {
-    // This is where we will build the contract step-by-step
-
+    // Import ERC721 from OpenZeppelin
+    use openzeppelin::token::erc721::ERC721;
 }
