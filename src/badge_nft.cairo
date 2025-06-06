@@ -1,8 +1,13 @@
 #[contract]
 mod badge_nft {
-    // Import ERC721 from OpenZeppelin
     use openzeppelin::token::erc721::ERC721;
     use starknet::contract::ContractAddress;
+
+    #[event]
+    struct AchievementUnlocked {
+        to: ContractAddress,
+        badge_id: u256,
+    }
 
     #[storage]
     struct Storage {
@@ -24,5 +29,7 @@ mod badge_nft {
         assert(caller == contract_owner, 'Only the owner can mint');
 
         ERC721::mint(recipient, badge_id);
+
+        AchievementUnlocked { to: recipient, badge_id }.emit();
     }
 }
