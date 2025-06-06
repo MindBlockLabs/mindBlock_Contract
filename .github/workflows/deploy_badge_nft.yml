@@ -1,0 +1,35 @@
+name: Compile, Test & Deploy Badge NFT
+
+on:
+  push:
+    branches:
+      - main
+      - feature/badge-nft  
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install Cairo and StarkNet CLI
+        run: |
+          sudo apt update
+          sudo apt install python3-pip -y
+          pip3 install cairo-lang
+
+      - name: Compile contract
+        run: |
+          starknet-compile src/badge_nft.cairo --output=badge_nft_compiled.json --abi=badge_nft_abi.json
+
+      - name: Run tests
+        run: |
+          starknet test tests/test_badge_nft.cairo
+
+      - name: Deploy contract to Testnet
+        env:
+          PRIVATE_KEY: ${{ secrets.STARKNET_PRIVATE_KEY }}
+        run: |
+          starknet deploy --contract badge_nft_compiled.json --network testnet --private-key $PRIVATE_KEY
