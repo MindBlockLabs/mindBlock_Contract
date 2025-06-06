@@ -1,5 +1,7 @@
 name: Compile & Deploy Badge NFT with Starkli
 
+# Triggering deployment workflow by edit
+
 on:
   push:
     branches:
