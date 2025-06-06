@@ -16,4 +16,13 @@ mod badge_nft {
         ERC721::constructor(name, symbol);
         owner::write(caller);
     }
+
+    #[external]
+    fn mint_badge(recipient: ContractAddress, badge_id: u256) {
+        let caller = get_caller_address();
+        let contract_owner = owner::read();
+        assert(caller == contract_owner, 'Only the owner can mint');
+
+        ERC721::mint(recipient, badge_id);
+    }
 }
