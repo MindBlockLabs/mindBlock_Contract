@@ -1,29 +1,49 @@
 #[cfg(test)]
 mod tests {
-    use super::player;
-    use starknet::testing::{start_contract, invoke_contract, call_contract};
-    use starknet::ContractAddress;
+    use starknet::testing::contract;
+    use starknet::prelude::*;
+    use player::player::{Contract as PlayerContract};
 
     #[test]
-    fn test_register_and_check() {
-        let test_address: ContractAddress = 1234.try_into().unwrap();
-        let mut contract = start_contract(player::contract);
+    fn test_register_succeeds_for_new_address() {
+        // Deploy the player contract
+        let contract = PlayerContract::deploy(@ArrayTrait::new());
 
-        // Register the player
-        invoke_contract(contract, "register", (), test_address);
+        // Call register
+        contract.register();
 
-        // Check registration
-        let is_registered: bool = call_contract(contract, "is_registered", (test_address,));
-        assert!(is_registered);
+        // Check if registered
+        let caller = get_caller_address();
+        let is_reg = contract.is_registered(caller);
+        assert(is_reg, 'Expected caller to be registered');
     }
 
     #[test]
-    #[should_panic]
-    fn test_prevent_duplicate_registration() {
-        let test_address: ContractAddress = 5678.try_into().unwrap();
-        let mut contract = start_contract(player::contract);
+    #[should_panic(expected: 'Already registered')]
+    fn test_register_fails_for_duplicate_address() {
+        let contract = PlayerContract::deploy(@ArrayTrait::new());
 
-        invoke_contract(contract, "register", (), test_address);
-        invoke_contract(contract, "register", (), test_address); // Should panic
+        // Register once
+        contract.register();
+
+        // Register again → should panic
+        contract.register();
+    }
+
+    #[test]
+    fn test_is_registered_returns_expected_boolean() {
+        let contract = PlayerContract::deploy(@ArrayTrait::new());
+        let caller = get_caller_address();
+
+        // Initially false
+        let is_before = contract.is_registered(caller);
+        assert(!is_before, 'Expected not registered before');
+
+        // Register
+        contract.register();
+
+        // Should now be true
+        let is_after = contract.is_registered(caller);
+        assert(is_after, 'Expected registered after register()');
     }
 }
