@@ -30,8 +30,11 @@ mod Leaderboard {
             let wallet = get_caller_address();
             let idx = self.wallet_to_index.get(wallet).unwrap_or(0);
             if idx != 0 {
-                // Already submitted, revert
-                panic!("Already submitted");
+                // Overwrite existing entry
+                let entry = LeaderboardEntry { wallet, proof_hash, percentile };
+                self.entries.set(idx - 1, entry); // idx is 1-based
+                emit ScoreSubmitted { wallet, proof_hash, percentile };
+                return;
             }
             let entry = LeaderboardEntry { wallet, proof_hash, percentile };
             self.entries.append(entry);
