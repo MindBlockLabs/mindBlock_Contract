@@ -1,5 +1,8 @@
 {
   "devDependencies": {
     "@types/node": "^24.0.4"
+  },
+  "dependencies": {
+    "starknet": "^7.6.2"
   }
 }
