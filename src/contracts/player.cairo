@@ -1,4 +1,3 @@
-
 #[starknet::contract]
 mod player {
     use starknet::ContractAddress;
@@ -9,8 +8,8 @@ mod player {
     // ========== Storage ==========
     #[storage]
     struct Storage {
-        registered: LegacyMap<ContractAddress, bool>,
-        registration_time: LegacyMap<ContractAddress, u64>,
+        registered: Map<ContractAddress, bool>,
+        registration_time: Map<ContractAddress, u64>,
     }
 
     // ========== Events ==========
@@ -22,14 +21,17 @@ mod player {
     fn register(ref self: ContractState) {
         let caller = get_caller_address();
 
-        if self.registered.read(caller) {
+        // Read from the map using .get() and unwrap fallback to false
+        let is_registered = self.registered.get(caller).unwrap_or(false);
+        if is_registered {
             panic!("Already registered");
         }
 
         let timestamp = get_block_timestamp();
 
-        self.registered.write(caller, true);
-        self.registration_time.write(caller, timestamp);
+        // Insert into the new Map
+        self.registered.insert(caller, true);
+        self.registration_time.insert(caller, timestamp);
 
         PlayerRegistered(caller, timestamp);
     }
@@ -37,13 +39,13 @@ mod player {
     // ========== View: Check if registered ==========
     #[view]
     fn is_registered(self: @ContractState, addr: ContractAddress) -> bool {
-        self.registered.read(addr)
+        self.registered.get(addr).unwrap_or(false)
     }
 
     // ========== Optional: View registration timestamp ==========
     #[view]
     fn get_registration_time(self: @ContractState, addr: ContractAddress) -> u64 {
-        self.registration_time.read(addr)
+        self.registration_time.get(addr).unwrap_or(0)
     }
 
     // ========== Optional Metadata Struct ==========
